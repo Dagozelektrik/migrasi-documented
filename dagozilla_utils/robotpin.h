@@ -36,7 +36,7 @@ MotorDagoz dribblerMotorR(DRIBBLER_PWM_PERIOD_US, PF_15, PG_4, PE_6); //Dribbler
 MotorDagoz dribblerMotorL(DRIBBLER_PWM_PERIOD_US, PE_15, PG_5, PE_5); //Dribbler Left Motor
 
 //Serial pin
-Serial pc(USBTX, USBRX, 115200); //Serial debug
+UARTSerial pc(USBTX, USBRX, 115200); //Serial debug
 
 //Compass BNO055 pin
 // BNO055_DAGOZ compass(PB_9, PB_8, PC_5); //Compass I2C Communication SDA SCL

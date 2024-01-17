@@ -2,7 +2,7 @@
 #define VARIABLE_H
 
 #include "mbed.h"
-#include <ros/time.h>
+//#include <ros/time.h>
 
 /*****************************
         Global Variable
@@ -15,30 +15,30 @@ int PIDModeBR = 1;
 int PIDModeBL = 1;
 int PIDMode = 1;
 float cp = 0.005;
-float kpFR = 1;
-float kpFL = 1;
-float kpBR = 1;
-float kpBL = 1;
-float tiFR = 1;
-float tiFL = 1;
-float tiBR = 1;
-float tiBL = 1;
-float tdFR = 1;
-float tdFL = 1;
-float tdBR = 1;
-float tdBL = 1;
-float ffFR = 0;
-float ffFL = 0;
-float ffBR = 0;
-float ffBL = 0;
-float fcFR = 0;
-float fcFL = 0;
-float fcBR = 0;
-float fcBL = 0;
-float WHEEL_PPR_1 = 384;
-float WHEEL_PPR_2 = 384;
-float WHEEL_PPR_3 = 384;
-float WHEEL_PPR_4 = 384;
+float kpFR = 1.;
+float kpFL;
+float kpBR = 1.;
+float kpBL = 1.;
+float tiFR = 1.;
+float tiFL = 1.;
+float tiBR = 1.;
+float tiBL = 1.;
+float tdFR = 1.;
+float tdFL = 1.;
+float tdBR = 1.;
+float tdBL = 1.;
+float ffFR = 0.;
+float ffFL = 0.;
+float ffBR = 0.;
+float ffBL = 0.;
+float fcFR = 0.;
+float fcFL = 0.;
+float fcBR = 0.;
+float fcBL = 0.;
+float WHEEL_PPR_1 = 384.;
+float WHEEL_PPR_2 = 384.;
+float WHEEL_PPR_3 = 384.;
+float WHEEL_PPR_4 = 384.;
 
 // Motor Pulse Accumulation
 int32_t motorPulseBL = 0;

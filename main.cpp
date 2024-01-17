@@ -71,7 +71,7 @@ int main()
     //init ros advertise and subscribe
     nh.getHardware()->setBaud(115200);
     nh.initNode();
-    wait(4); // wait until nucleo node is set
+    ThisThread::sleep_for(4ms); // wait until nucleo node is set
     nh.advertise(statePub);
     nh.advertiseService(set_base_active_srv);
     nh.subscribe(commandSub);
@@ -119,47 +119,47 @@ void initPIDController()
 }
 void assignPIDParam()
 {
-    while (!nh.getParam("/control/base/motors_pid/front_left/mode", &PIDMode, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_left/mode", &PIDMode, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/front_left/proportional", &kpFL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_left/proportional", &kpFL, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/front_left/feedforward", &ffFL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_left/feedforward", &ffFL, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/front_left/integral_time", &tiFL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_left/integral_time", &tiFL, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/front_left/derivative_time", &tdFL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_left/derivative_time", &tdFL, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/front_right/proportional", &kpFR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_right/proportional", &kpFR, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/front_right/feedforward", &ffFR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_right/feedforward", &ffFR, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/front_right/integral_time", &tiFR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_right/integral_time", &tiFR, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/front_right/derivative_time", &tdFR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_right/derivative_time", &tdFR, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/back_left/proportional", &kpBL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_left/proportional", &kpBL, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/back_left/feedforward", &ffBL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_left/feedforward", &ffBL, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/back_left/integral_time", &tiBL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_left/integral_time", &tiBL, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/back_left/derivative_time", &tdBL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_left/derivative_time", &tdBL, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/back_right/proportional", &kpBR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_right/proportional", &kpBR, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/back_right/feedforward", &ffBR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_right/feedforward", &ffBR, 1, 10000));
 
-    while (!nh.getParam("/control/base/motors_pid/back_right/integral_time", &tiBR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_right/integral_time", &tiBR, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/back_right/derivative_time", &tdBR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_right/derivative_time", &tdBR, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/front_left/filter_coefficient", &fcFL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_left/filter_coefficient", &fcFL, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/front_right/filter_coefficient", &fcFR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/front_right/filter_coefficient", &fcFR, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/back_left/filter_coefficient", &fcBL, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_left/filter_coefficient", &fcBL, 1, 10000));
     
-    while (!nh.getParam("/control/base/motors_pid/back_right/filter_coefficient", &fcBR, 1, 3000));
+    while (!nh.getParam("/control/base/motors_pid/back_right/filter_coefficient", &fcBR, 1, 10000));
         
     char pass_param[20];
     snprintf(pass_param, 20, "PIDMode : %d", PIDMode);
@@ -211,16 +211,16 @@ void assignPIDParam()
     nh.loginfo(pass_param);
     
     //ppr
-    while (!nh.getParam("/control/base/motors/pulses_per_revolution_1", &WHEEL_PPR_1, 1, 3000));
+    while (!nh.getParam("/control/base/motors/pulses_per_revolution_1", &WHEEL_PPR_1, 1, 10000));
     snprintf(pass_param, 20, "PPR_1 : %lf", WHEEL_PPR_1);
     nh.loginfo(pass_param);
-    while (!nh.getParam("/control/base/motors/pulses_per_revolution_2", &WHEEL_PPR_2, 1, 3000));
+    while (!nh.getParam("/control/base/motors/pulses_per_revolution_2", &WHEEL_PPR_2, 1, 10000));
     snprintf(pass_param, 20, "PPR_2 : %lf", WHEEL_PPR_2);
     nh.loginfo(pass_param);
-    while (!nh.getParam("/control/base/motors/pulses_per_revolution_3", &WHEEL_PPR_3, 1, 3000));
+    while (!nh.getParam("/control/base/motors/pulses_per_revolution_3", &WHEEL_PPR_3, 1, 10000));
     snprintf(pass_param, 20, "PPR_3 : %lf", WHEEL_PPR_3);
     nh.loginfo(pass_param);
-    while (!nh.getParam("/control/base/motors/pulses_per_revolution_4", &WHEEL_PPR_4, 1, 3000));
+    while (!nh.getParam("/control/base/motors/pulses_per_revolution_4", &WHEEL_PPR_4, 1, 10000));
     snprintf(pass_param, 20, "PPR_4 : %lf", WHEEL_PPR_4);
     nh.loginfo(pass_param);
     intEncFL.setPPR(WHEEL_PPR_1);
@@ -233,7 +233,7 @@ void mainProcess()
 {
 //    float cur_pot_L0 = (float)dribblerPotL.read() * SCALE_POT_L;
     float cur_pot_R0 = (float)dribblerPotR.read() * SCALE_POT_R;
-    Thread::wait(1000);
+    ThisThread::sleep_for(1s);
 
     while (1)
     {
@@ -260,7 +260,7 @@ void mainProcess()
 
         publishMessage();
 
-        if (t - last_timer >= 1000)
+        if (chrono::duration_cast<chrono::milliseconds>(t.elapsed_time()).count() - last_timer >= 1000)
         {
 
             locomotion_FL_target_vel = 0;
@@ -274,7 +274,7 @@ void mainProcess()
             kick_power_target = 0;
             kicker_shoot_mode = 0;
         }
-        Thread::wait(30);
+        ThisThread::sleep_for(30ms);
         nh.spinOnce();
     }
 }
@@ -326,7 +326,7 @@ void controlCalculation()
         locomotionMotorBL.setpwm(locomotion_BL_target_rate);
         locomotionMotorBR.setpwm(locomotion_BR_target_rate);     
 
-        Thread::wait(5);
+        ThisThread::sleep_for(5ms);
     }
 }
 
@@ -339,16 +339,18 @@ void moveDribbler()
 void moveLever()
 {
 
-    switch (kicker_shoot_mode)
+    if (kicker_shoot_mode==0)
     {
-    case 0:
+    // case 0:
         position = 0.06; /* Laplace */
         // position = 0.15; /* Kirchhoff */
-        break;
-    case 1:
+        // break;
+    // case 1:
+    }
+    else{
         position = 0.32; /* Laplace */
         // position = 0.4; /* Kirchhoff */
-        break;
+        // break;
     }
 
     kickerServo.calibrate(range, 0.0);
@@ -415,7 +417,7 @@ void commandCallback(const dgz_msgs::StampedHardwareCommand &commandMsg)
     ControllerBL.setActive(base_active);
     ControllerBR.setActive(base_active);
 
-    last_timer = t;
+    last_timer = chrono::duration_cast<chrono::milliseconds>(t.elapsed_time()).count();
 }
 
 //new function
@@ -423,11 +425,11 @@ void kickTarget(){
     while(1){
         nh.spinOnce();
         // pc.printf("Function Called\n");
-        if (clock_ms()-time_last_kick > kicker_ready_time && kick_power_target != 0)
+        if (get_ms_count()-time_last_kick > kicker_ready_time && kick_power_target != 0)
         {
             kicker.write(kick_power_target);
             kick_power_target = 0;
-            time_last_kick = clock_ms();
+            time_last_kick = get_ms_count();
             std_srvs::SetBool::Request req;
             std_srvs::SetBool::Response res;
             req.data = true;
@@ -439,10 +441,10 @@ void kickTarget(){
             kicker.write(0);
             kick_power_target = 0;
         }
-        Thread::wait(20);
+        ThisThread::sleep_for(20ms);
         kicker.write(0);
         kick_power_target = 0;
-        Thread::wait(30);
+        ThisThread::sleep_for(30ms);
     }
         
 }
@@ -450,13 +452,13 @@ void kickTarget(){
 //cmps
 void getCompass(){
    float theta0 = compass.readBearing()/10.0;
-   Thread::wait(1000);
+   ThisThread::sleep_for(1000ms);
    theta0 = compass.readBearing()/10.0;
    int compassLed = 0;
    nh.spinOnce();
    float theta_prev = theta0;
    
-   pc.printf("Theta : %.2f\n", theta0);
+//    pc.printf("Theta : %.2f\n", theta0);
    
    float theta = 0;
    
@@ -483,6 +485,6 @@ void getCompass(){
     //    Thread::wait(20);
     //    kicker.write(0);
     //    kick_power_target = 0;
-       Thread::wait(30);
+       ThisThread::sleep_for(30ms);
    }
 }

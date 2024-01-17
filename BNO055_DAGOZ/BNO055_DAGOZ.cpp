@@ -13,9 +13,9 @@ BNO055_DAGOZ::BNO055_DAGOZ(PinName SDA, PinName SCL, PinName RESET) : _i2c(SDA,S
 void BNO055_DAGOZ::reset(){
     sysReset();
     _reset = 0;
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     _reset = 1;
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     _reset = 0;
 } 
 void BNO055_DAGOZ::sysReset(){
@@ -32,9 +32,9 @@ void BNO055_DAGOZ::sysReset(){
 bool BNO055_DAGOZ::bno055Healthy()
 {
     int sys_error = readReg(BNO055_SYS_ERR_ADDR);
-    Thread::wait(1);
+    ThisThread::sleep_for(1);
     int sys_stat = readReg(BNO055_SYS_STAT_ADDR);
-    Thread::wait(1);
+    ThisThread::sleep_for(1);
     
     if(sys_error == 0 && sys_stat == 5)
         return true;
@@ -54,7 +54,7 @@ bool BNO055_DAGOZ::check()
     //printf("\nID : %d\n",regVal);
     if(regVal != BNO055_ID_VAL) return false;
     
-    Thread::wait(50);
+    ThisThread::sleep_for(50);
     regVal = readReg(BNO055_TEMP_ADDR); 
     //printf("TEMP : %d\n",regVal);
     if(regVal == 0) startupPass = false;
@@ -71,14 +71,14 @@ bool BNO055_DAGOZ::init()
     // Change mode to CONFIG
     writeReg(BNO055_OPR_MODE_ADDR, 0x00);
     //wait(0.2);
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     
     regVal = readReg(BNO055_OPR_MODE_ADDR);
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     
     // Remap axes
     writeReg(BNO055_AXIS_MAP_CONFIG_ADDR, 0x06);    // b00_00_01_10
-    Thread::wait(100);    
+    ThisThread::sleep_for(100);    
  
     // Set to external crystal
     //writeReg(BNO055_SYS_TRIGGER_ADDR, 0x80);
@@ -89,10 +89,10 @@ bool BNO055_DAGOZ::init()
  //  Thread::wait(100);
     // Change mode to NDOF
     writeReg(BNO055_OPR_MODE_ADDR, 0x0C);
-    Thread::wait(200);
+    ThisThread::sleep_for(200);
  
     regVal = readReg(BNO055_OPR_MODE_ADDR);
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     return startupPass;
 }
 
