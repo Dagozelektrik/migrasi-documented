@@ -34,19 +34,17 @@ EncoderMotor::EncoderMotor(PinName channelA, PinName channelB, float pulsesPerRe
     currState_ = (chanA << 1) | (chanB);
     prevState_ = currState_;
 
-    void (EncoderMotor::*func) (void) = &EncoderMotor::encode;
-    auto callback = [this, func]() { (encode)(); };
     //X2 encoding uses interrupts on only channel A.
     //X4 encoding uses interrupts on      channel A,
     //and on channel B.
-    channelA_.rise(callback);
-    channelA_.fall(callback);
+    channelA_.rise([this](){ encode(); });
+    channelA_.fall([this](){ encode(); });
 
     //If we're using X4 encoding, then attach interrupts to channel B too.
     if (encoding == X4_ENCODING) 
     {
-        channelB_.rise(callback);
-        channelB_.fall(callback);
+        channelB_.rise([this](){ encode(); });
+        channelB_.fall([this](){ encode(); });
     }
 }
 
