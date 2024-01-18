@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "math.h"
+#include <cstdint>
 #include <vector>
 #include <ros.h>
 #include <dagozilla_utils/config.h>
@@ -35,11 +36,22 @@ ros::Subscriber<dgz_msgs::StampedHardwareCommand> commandSub("/control/command/h
 ******************************/
 ros::ServiceClient<std_srvs::SetBool::Request, std_srvs::SetBool::Response> client("control/state/notify_kick");
 
+
+Mutex mutex_acc;
+ConditionVariable cv(mutex_acc);
+Mutex mutex_controlCalculation;
+ConditionVariable cvCc(mutex_controlCalculation);
+Mutex mutex_compass;
+ConditionVariable cvCompass(mutex_compass);
+Mutex mutex_main;
+ConditionVariable cvMain(mutex_main);
+
 //thread for RTOS
 Thread thread1(osPriorityNormal1);
 Thread thread2(osPriorityAboveNormal);
 Thread thread3(osPriorityNormal);
 Thread thread4(osPriorityRealtime7);
+Thread thread5(osPriorityNormal);
 
 
 // initialize controllers
@@ -93,6 +105,7 @@ int main()
     thread2.start(getCompass);
     thread3.start(controlCalculation);
     thread4.start(kickTarget);
+    thread5.start(publishMessage);
 
     while (true)
     {
@@ -258,9 +271,9 @@ void mainProcess()
         moveDribbler();
         moveLever();
 
-        publishMessage();
+        // publishMessage();
 
-        if (chrono::duration_cast<chrono::milliseconds>(t.elapsed_time()).count() - last_timer >= 1000)
+        if (get_ms_count() - last_timer >= 1000)
         {
 
             locomotion_FL_target_vel = 0;
@@ -282,10 +295,14 @@ void mainProcess()
 // PID Calculation to generate PWM
 void controlCalculation()
 {
+    int counter = 1;
 
     while (1)
     {
         // Get Internal Encoder Pulses
+        mutex_controlCalculation.lock();
+        Kernel::Clock::time_point end_time = Kernel::Clock::now() + 10ms;
+
         rotInFL = intEncFL.getPulses(1);
         rotInFR = intEncFR.getPulses(1);
         rotInBL = intEncBL.getPulses(1);
@@ -324,9 +341,31 @@ void controlCalculation()
         locomotionMotorFL.setpwm(locomotion_FL_target_rate);
         locomotionMotorFR.setpwm(locomotion_FR_target_rate);
         locomotionMotorBL.setpwm(locomotion_BL_target_rate);
-        locomotionMotorBR.setpwm(locomotion_BR_target_rate);     
+        locomotionMotorBR.setpwm(locomotion_BR_target_rate);
 
-        ThisThread::sleep_for(5ms);
+        // char pass_param[20];
+        // snprintf(pass_param, 20, "motor_1 : %d", motorPulseFL);
+        // nh.loginfo(pass_param);
+ 
+
+        while (1){;
+            if (cvCc.wait_until(end_time) == cv_status::timeout) {
+                break;               
+            }
+        }
+
+        if (counter%4==0){
+            mutex_acc.lock();
+            // nh.loginfo("---batas suci---");
+            cv.notify_all();
+            mutex_acc.unlock();
+            counter = 0;
+        } 
+        counter++;
+
+        mutex_controlCalculation.unlock();
+
+        // ThisThread::sleep_for(5ms);
     }
 }
 
@@ -358,41 +397,72 @@ void moveLever()
 }
 
 void publishMessage()
+
 {
+    char pass_param[50];
+    Timer t_check;
+    while(1){
+        // t_check.start();
 
-    // Publish position data//
-    stateMsg.data.base_motor_1_pulse_delta = motorPulseFL;
-    stateMsg.data.base_motor_2_pulse_delta = motorPulseFR;
-    stateMsg.data.base_motor_3_pulse_delta = motorPulseBL;
-    stateMsg.data.base_motor_4_pulse_delta = motorPulseBR;
+        mutex_acc.lock();
+        Kernel::Clock::time_point end_time = Kernel::Clock::now() + 20ms;
+        // Publish position data//
+        stateMsg.data.base_motor_1_pulse_delta = motorPulseFL;
+        stateMsg.data.base_motor_2_pulse_delta = motorPulseFR;
+        stateMsg.data.base_motor_3_pulse_delta = motorPulseBL;
+        stateMsg.data.base_motor_4_pulse_delta = motorPulseBR;
 
-    stateMsg.data.base_encoder_1_pulse_delta = cur_locomotion_L;
-    stateMsg.data.base_encoder_2_pulse_delta = cur_locomotion_R;
-    stateMsg.data.base_encoder_3_pulse_delta = cur_locomotion_B;
+        // nh.loginfo("batas kotor");
+        // snprintf(pass_param, 20, "Accumulated: %d", stateMsg.data.base_motor_1_pulse_delta);
+        // nh.loginfo(pass_param);
 
-    stateMsg.data.dribbler_motor_l_pulse_delta = cur_dribbler_L;
-    stateMsg.data.dribbler_motor_r_pulse_delta = cur_dribbler_R;
+        stateMsg.data.base_encoder_1_pulse_delta = cur_locomotion_L;
+        stateMsg.data.base_encoder_2_pulse_delta = cur_locomotion_R;
+        stateMsg.data.base_encoder_3_pulse_delta = cur_locomotion_B;
 
-    stateMsg.data.dribbler_potentio_l_reading = 0.0;
-    stateMsg.data.dribbler_potentio_r_reading = 0.0;
+        stateMsg.data.dribbler_motor_l_pulse_delta = cur_dribbler_L;
+        stateMsg.data.dribbler_motor_r_pulse_delta = cur_dribbler_R;
 
-    stateMsg.data.ir_reading = ball_distance;
-    stateMsg.data.compass_reading = theta_result;
+        stateMsg.data.dribbler_potentio_l_reading = 0.0;
+        stateMsg.data.dribbler_potentio_r_reading = 0.0;
 
-    stateMsg.header.stamp = nh.now();
+        stateMsg.data.ir_reading = ball_distance;
+        stateMsg.data.compass_reading = theta_result;
 
-    statePub.publish(&stateMsg);
+        stateMsg.header.stamp = nh.now();
 
-    // Reset pulse delta value for distinguished control thread frequency
-    //xSemaphorePulseData.wait();
-    motorPulseFL = 0;
-    motorPulseFR = 0;
-    motorPulseBR = 0;
-    motorPulseBL = 0;
-    cur_locomotion_L = 0;
-    cur_locomotion_R = 0;
-    cur_locomotion_B = 0;
-    //xSemaphorePulseData.release();
+        statePub.publish(&stateMsg);
+
+        // Reset pulse delta value for distinguished control thread frequency
+        //xSemaphorePulseData.wait();
+        motorPulseFL = 0;
+        motorPulseFR = 0;
+        motorPulseBR = 0;
+        motorPulseBL = 0;
+        cur_locomotion_L = 0;
+        cur_locomotion_R = 0;
+        cur_locomotion_B = 0;
+        //xSemaphorePulseData.release();
+        // nh.loginfo("last");
+
+        cv.wait();
+        // t_check.stop();
+        // snprintf(pass_param, 75, "The time taken was %llu milliseconds\n", std::chrono::duration_cast<std::chrono::milliseconds>(t_check.elapsed_time()).count());
+
+        while (1){
+            if (cv.wait_until(end_time) == cv_status::timeout) {
+                break;               
+            }
+        }
+        // snprintf(pass_param, 50, "The time taken was %d", t_check.read_ms());
+        // t_check.reset();
+        // nh.loginfo(pass_param);
+        mutex_acc.unlock();
+
+        // ThisThread::sleep_for(20ms);
+
+    }
+
 }
 
 void commandCallback(const dgz_msgs::StampedHardwareCommand &commandMsg)
@@ -417,7 +487,7 @@ void commandCallback(const dgz_msgs::StampedHardwareCommand &commandMsg)
     ControllerBL.setActive(base_active);
     ControllerBR.setActive(base_active);
 
-    last_timer = chrono::duration_cast<chrono::milliseconds>(t.elapsed_time()).count();
+    last_timer = get_ms_count();
 }
 
 //new function
