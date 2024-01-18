@@ -343,6 +343,8 @@ void controlCalculation()
         locomotionMotorBL.setpwm(locomotion_BL_target_rate);
         locomotionMotorBR.setpwm(locomotion_BR_target_rate);
 
+        snprintf(pass_param,20,)
+
         // char pass_param[20];
         // snprintf(pass_param, 20, "motor_1 : %d", motorPulseFL);
         // nh.loginfo(pass_param);
